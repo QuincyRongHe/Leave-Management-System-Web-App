@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="table-container">
+    <main>
+    <div class="general-table">
+            <i class="error fa-regular fa-circle-xmark fa-2xl"></i>
+            <h1>Hey there... You are not authorised to view this page...</h1>
+            <h2>This request has been cancelled by the sender and is not accessible.</h2>
+
+        </div>
+    </main>
+</div>
+
+<div>
+    {{ message }}
+</div>
+
+{% endblock %}

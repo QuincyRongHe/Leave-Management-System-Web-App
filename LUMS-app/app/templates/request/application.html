@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+{% block content %}
+
+<head>
+
+
+    <script src="{{ url_for('static', filename='scripts/jquery-2.1.1.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/moment.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/daterangepicker.js') }}" crossorigin="anonymous"></script>
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/boostrap.css') }}" > -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/daterangepicker.css') }}" >
+    
+</head>
+
+<title>Application for leave form</title>
+
+<!--Error handling-->
+        {% macro show_errs(field) %}
+            {% for err in field.errors%}
+
+            <p class="center" style="color:  red; font-size: 18px;">{{err}}</p>
+            
+            {% endfor %}
+        {% endmacro %}
+
+        {% macro label(field) %}
+
+        {% if field.flags.required %}<td>{{ field.label(text='*' + field.label.text) }}:  {%else%} {{ field.label(field.label.text) }}:  {% endif %}
+
+        {% endmacro %}
+
+<!-----------------Heading----------------------------->
+    {% if req_id is not defined %}
+    <h1 class = "heading-margins"> New Request Application </h1>
+    {%else%}
+    <h1 class = "heading-margins"> Modify Existing Request </h1>
+    {%endif%}
+<!-------------------------------------------->
+<div class="table-container">
+    <main>
+    <div class="general-table">
+        <div class="form-main-input">
+            {% if req_id is not defined %}
+        <form id="application of leave form"  action="{{ url_for('request.apply') }}" method="POST">
+            {%else%}
+        <form id="application of leave form"  action="{{ url_for('request.modify', req_id=req_id) }}" method="POST">
+            {%endif%}
+            {{ form.hidden_tag() }}  
+
+
+
+<!-------------------column starts------------------------->
+    <div class = "form-columns-rows">
+<!----------------------left side---------------------->
+        <div class="form-column" id="form-column-left"> 
+            <div class= form-title>Choose dates on the calendar below </div>                                  
+                <div class = "form-input" id="form-date" hidden><input type="text" name="datefilter" value="Click me to choose date!" readonly="readonly" /></div>                                
+                <div class="form-display" id="choose-dates" ></div>
+
+        </div>
+<!--------------------right side------------------------>
+        <div class="form-column" id="form-column-right">
+            <div class= form-title> Leave details</div>
+
+            <div class="form-input" id="form-leave">{{label(form.leave_type)}} {{form.leave_type}} {{show_errs(form.leave_type)}}</div>
+            <div class="form-display" id="form-start-date" >{{label(form.start_date)}} {{form.start_date(readonly="readonly")}}{{show_errs(form.start_date)}}</div>
+            <div class="form-display" id="form-end-date" >{{label(form.end_date)}} {{form.end_date(readonly="readonly")}}{{show_errs(form.end_date)}}</div>  
+            <div class="form-input" id="form-add-info">{{label(form.reason)}} {{form.reason}}{{show_errs(form.reason)}}</div>
+
+            <div class="form-input" name="calc-leave"> </div>
+            
+            {% if isManager %}
+            <div class="form-input" id="form-add-info-mgr">{{label(form.comment)}} {{form.comment}} {{show_errs(form.comment)}}</div>
+            {% endif %}
+
+            <div class="form-button" id="form-save"> {{form.save}} </div>
+            {% if not isManager %}
+
+                
+
+                <div class="form-button" id="form-save">{{form.submit}}</div>
+                
+
+            {% endif %}
+
+            <div class="button-group">
+                {% if req_id is defined %}
+                <button type="button" onclick="goBack()" class="form-button form-button-secondary form-button-secondary-left" id="form-back">Go Back</button>
+                {% endif %}
+                <a class="form-button form-button-secondary form-button-secondary-right" id="form-reset" href="javascript:window.location.href=window.location.href">Reset!</a>
+            </div>
+            
+            <script>
+            function goBack() {
+                window.history.back();
+            }
+            </script>
+            
+            
+            
+
+
+            <!---------HTML for pop-up on click------------>
+            <!-- <div class = "pop-up-container">
+                <div class="popup" id="popup">
+                    <i class="fa-regular fa-circle-check fa-2xl" id="pop-up-tick"></i>
+                    <h2 class="pop-up-text">Thank you!</h2>
+                    <p class ="pop-up-message">Your leave request has been submitted</p>
+
+                    <button type="button" class="pop-up-ok" onclick="closePopupConfirm()">{{form.submit}}</button>
+
+
+
+                </div>
+        
+        
+        
+            </div> -->
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+
+
+
+
+
+<!-- 
+<script type="text/javascript">
+    $(document).ready(function() {
+      let popup = document.getElementById("popup");
+    
+      function openPopup() {
+        popup.classList.add("openPopup");
+        
+      }
+    
+      function closePopupConfirm() {
+        popup.classList.remove("openPopup");
+      }
+
+      function closePopupExit() {
+        popup.classList.remove("openPopup");
+      }
+      
+
+      $("#form-submit").click(function() {
+
+    var url = document.querySelector("#form-submit").action;
+
+
+
+    $.ajax({
+       type: "POST",
+       url: '{{url_for("request.apply",check=1)}}',
+       data: $("SELECTOR-FOR-FORM-ELEMENT-GOES-HERE").serialize(), // serializes the form's elements.
+       success: function(data)
+       {
+        console.log(JSON.parse(data)['data'][0]);
+        // alert(data)
+        //    openPopup();
+           alert(data[0]['data'])
+
+       },
+         error: function(data)
+         {
+              alert("Error");
+         }
+     });
+    });
+});
+
+
+
+    </script> -->
+
+
+
+
+
+
+<script type="text/javascript">
+
+
+
+   
+    $( document ).ready(function() {
+
+        
+
+
+        async function getHolidays() {
+                    const response = await fetch('{{  url_for("request.getallHoliday") }}',
+                     {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    var resp = await response.json();
+                    console.log("file: " + resp.data);
+                    console.log(resp['data'])
+
+                    var count = Object.keys(resp['data']).length;
+                    console.log(count);
+
+                    
+
+                
+
+
+                    let options = {
+                        
+                        parentEl: '#choose-dates',
+                        autoUpdateInput: false,
+                        locale: { cancelLabel: 'Clear', format: 'DD/MM/YYYY' },
+                        minDate: moment().startOf('day').subtract(30, 'day'),
+                        maxDate: moment().startOf('day').add(365, 'day'),
+                    
+                        isInvalidDate: function(date) {
+
+                            for(var i = 0; i < count; i++) {
+
+                                if ( resp.data[i] ==  moment(date).format('DD/MM/YYYY')) {
+   
+                                    return true;
+                                } 
+
+                            }
+
+                                if (date.day() == 0 || date.day() == 6 ) {
+                                
+                                  
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+            }
+
+            if('{{req_id}}')
+                {
+
+                    options['startDate'] = '{{form.start_date.data | nz_date(symbol="/")}}';
+                    options['endDate'] = '{{form.end_date.data | nz_date(symbol="/")}}';
+          
+                }
+                    
+                    
+                    return options;
+                }
+
+
+        getHolidays().then(
+            
+
+        function(value) {
+
+   
+
+            $('input[name="datefilter"]').daterangepicker(value)
+
+            return '.daterangepicker';
+        }
+
+        ).then(
+            function(value) {
+                $(value).css({
+                            'position' : 'initial', 
+                            'top' : '', 
+                            'left' : '', 
+                            'z-index' : ''});
+
+                console.log(value);
+                $('input[name="datefilter"]').click();
+
+                $('.drp-buttons .applyBtn').remove()
+                $('.drp-buttons .cancelBtn').remove()
+
+                
+
+                
+            }
+
+
+        );
+
+
+
+
+
+        
+        
+    //     $('input[name="datefilter"]').daterangepicker({
+    //     parentEl: "#choose-dates",
+    //     alwaysShowCalendars: true,
+    //     autoUpdateInput: false,
+    //     locale: { cancelLabel: 'Clear', format: 'DD/MM/YYYY' },
+    //     minDate: moment().startOf('day').subtract(30, 'day'),
+    //     maxDate: moment().startOf('day').add(365, 'day'),
+    // })
+
+    
+
+    // $('.daterangepicker').css({"position":'', "top": '', "left": '', "z-index": ''});
+
+    
+    // let con = $('#my-data').data();
+    
+    
+
+
+
+    $('input[name="datefilter"]').on('dateselect.daterangepicker', function(ev, picker) {
+
+        if(picker.startDate && picker.endDate) {
+
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+
+        
+            $('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+            $('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+
+
+            $.ajax({  
+                    url:'{{  url_for("request.calcLeave") }}',  
+                    type:"POST",  
+                    contentType: 'application/json;charset=UTF-8',
+                    data:JSON.stringify({'start':picker.startDate.format('YYYY-MM-DD'), 'end':picker.endDate.format('YYYY-MM-DD')}),  
+                    
+                    success:function(rep)  
+                    {  
+
+                      
+                        
+                        // const ans=rep.split(',')
+                        data = JSON.parse(rep)['data']
+
+                       console.log(JSON.parse(rep));
+
+                       let description = '<div> Less ' + data['weekend_count'] + ' day(s) for weekends </div>' +'<div> Less ' + data['ignored_days'] + ' day(s) for public holiday </div>' +'<div> You have chosen ' + data['leave_days'] + ' day(s) for your leave</div>'
+
+
+                       
+                       
+
+
+                       $('div[name="calc-leave"]').html(description);
+                    //    $('div[name="calc-leave"]').html('<div>' + data['leave_days'] + '</div>');
+                    //     $('div[name="calc-leave"]').html('<div>' + data['leave_days'] + '</div>');
+                    }  
+                });  
+            
+
+
+
+
+
+
+
+        }
+
+
+
+    
+});
+
+$('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
+  //do something, like clearing an input
+  console.log("cancel");
+  
+  picker.setStartDate({})
+  picker.setEndDate({})
+  $(this).val("")
+});
+
+
+    
+
+    
+    // $('input[name="reason"]').focus();
+
+
+    });
+
+
+    
+
+    
+
+
+
+
+
+
+</script>
+    
+  
+{% endblock %}
+

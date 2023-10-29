@@ -1,0 +1,68 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+
+<h1 class="heading-margins"> New Requests </h1>
+
+{% if not allNewRequests %}
+  <div class="no-requests" id="no-leave-table">
+  <p>No leave requests found.</p>
+  </div>
+{% else %}
+
+<div class = "table-container">
+    <main>
+        <div class="general-table">
+            <table>
+                <thead>
+                    <tr>
+                      <th>Request ID</th>
+                      <th>Employee</th>
+                      <th>Submission Date</th>
+                      <th>Leave Type</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Status</th>
+                      <th>Approval Manager</th>
+                      <th>Edit</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                  {% for request in allNewRequests %}
+
+                  {% set requestID = request[0] %}
+                  {% set emp_id = request[1] %}
+
+                  <tr>
+                    <td><a href="{{ url_for('request.viewMyRequests', emp_id=emp_id, request_id=request[0]) }}"><i class="fa-solid fa-link" id="leave-request-table-icons"></i>{{ request[0] }}</a></td>
+                    <td>{{ request[2] }}</td>
+                    <td>{{ request[3] | format_date_time }}</td>
+                    <td>{{ request[4] }}</td>
+                    <td>{{ request[5] | nz_date }}</td>
+                    <td>{{ request[6] | nz_date }}</td>
+                    <td>{{ request[7] }}</td>
+                    <td>{{ request[8] }}</td>
+                    <td><a href="{{ url_for('request.approveLeaves', emp_id=emp_id, request_id=request[0]) }}"><i class="fa-solid fa-file-pen" id="new-leave-request-table-icon-pen"></i></a></td>
+                  </tr>
+
+                  {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+        </div>
+
+    </main>
+    
+</div>
+
+
+
+
+
+
+
+{% endblock %}
+

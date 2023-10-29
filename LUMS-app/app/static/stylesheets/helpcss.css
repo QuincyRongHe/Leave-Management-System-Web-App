@@ -1,0 +1,12 @@
+.large-text {
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+.email-link {
+    text-decoration: underline;
+}
+.center-text {
+    text-align: center;
+}

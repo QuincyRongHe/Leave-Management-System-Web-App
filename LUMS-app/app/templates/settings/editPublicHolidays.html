@@ -1,0 +1,517 @@
+{% extends "settings/settings.html" %}
+{% block setting_content %}
+
+<head>
+
+
+    <style>
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+      
+      .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 15px;
+      }
+      
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 15px;
+      }
+      
+      input:checked + .slider {
+        background-color: var(--color-navy-opacity)
+      }
+      
+      input:focus + .slider {
+        box-shadow: 0 0 1px var(--color-navy-opacity)
+      }
+      
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+      
+      /* Rounded sliders */
+      .slider.round {
+        border-radius: 34px;
+      }
+      
+      .slider.round:before {
+        border-radius: 50%;
+      }
+      </style>
+</head>
+
+<div>
+
+
+  <div id="dialog-form" title="Create a new Holiday">
+    <p class="validateTips">All form fields are required.</p>
+    <br/>
+   
+    <form>
+      <fieldset>
+        <label for="holiday_name">Holiday Name</label>
+        <input type="text" name="holiday_name" id="holiday_name" value="" class="text ui-widget-content ui-corner-all">
+        <label for="holiday_date">Holiday date</label>
+        <input type="text" name="holiday_date" id="datepicker" value="" class="text ui-widget-content ui-corner-all">
+     
+   
+        <!-- Allow form submission with keyboard without duplicating the dialog button -->
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+      </fieldset>
+    </form>
+  </div>
+   
+   
+
+  <button class="button-settings-options" id="create_leave_types">Create a new holiday</button>
+   
+    
+    <div id="table"></div>
+
+    
+    
+
+</div>
+
+<script>
+
+const tableDiv = document.getElementById('table');
+
+const editableCellAttributes = (data, row, col) => {
+
+          if (row) {
+            // console.log("row: " + row.cells[0].data)
+            const attr = {contentEditable: 'true', 'data-element-id': row.cells[0].data};
+            return attr;
+          }
+          else {
+            return {};
+          }
+      };
+
+const add_element_id = (data, row, col) => {
+  console.log('1st row')
+  console.log(row)
+
+if (row) {
+  console.log('2nd row')
+  console.log(row)
+  // console.log( row.cells[0].data)
+  if(row.cells[0].data){
+    console.log('3nd row')
+  console.log(row)
+
+    const add_id = {'data-element-id': row.cells[0].data};
+  return add_id;
+
+  }
+  return {};
+  
+}
+else {
+  return {};
+}
+};
+
+
+
+
+
+
+const holiday_table = new gridjs.Grid({
+        columns: [
+          { id: 'holiday_id', name: 'ID' },
+          { id: 'holiday_name', name: 'Name', 'attributes': editableCellAttributes },
+          { id: 'holiday_year', name: 'Year', 'attributes': editableCellAttributes },
+          { id: 'holiday_month', name: 'Month', 'attributes': editableCellAttributes },
+          { id: 'holiday_day', name: 'Day', 'attributes': editableCellAttributes },
+          
+          { id: 'is_active', name: 'Active', 
+              
+              formatter: (cell, row, col) => {
+
+                  if(col){
+                    if (cell == 1){
+                      return gridjs.html(`<label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`)
+
+                  }else {
+                      return gridjs.html(`<label class="switch"><input type="checkbox" ><span class="slider"></span></label>`)
+                  }
+
+                  }
+                  
+          
+          }, 'attributes': add_element_id },
+            
+          { id: 'edit_by', name: 'Edit by'},
+          {id: 'edit_date', name: 'Edit Date'}
+        ],
+   
+        server:{
+          url:'{{ url_for("admin.getHoliday") }}',
+          then: results => results
+
+        },
+        search: true,
+        sort: true
+      }).render(tableDiv)
+      
+
+      // var element = document.querySelector('[data-column-id="holiday_id"]');
+      // alert(element);
+      // element.click();
+
+      // $('th[data-column-id=holiday_id]' ).trigger( "click" )
+
+      
+
+      
+
+
+
+let savedValue;
+
+tableDiv.addEventListener('focusin', ev => {
+        if (ev.target.tagName === 'TD') {
+          savedValue = ev.target.textContent;
+        }
+      });
+
+function validate_number(value, type){
+
+  if (type=="year"){
+    if (value.length != 4 || isNaN(value) || value > 2099 || value < 1900){
+      return false
+    }
+    else{
+      return true
+    }
+  }
+  else if (type=="month"){
+    if (isNaN(value) || value > 12 || value < 1){
+      return false
+    }
+    else{
+      return true
+    }
+  }
+  else if (type=="day"){
+    if (isNaN(value) || value > 31 || value < 1){
+      return false
+    }
+    else{
+      return true
+    }
+  }
+  else{
+    return false
+  }
+
+}
+
+
+
+tableDiv.addEventListener('focusout', ev => {
+
+  if (ev.target.tagName === 'TD') {
+    if (savedValue !== ev.target.textContent) {
+      if (ev.target.getAttribute("data-column-id") == "holiday_year"){
+        if (validate_number(ev.target.textContent, "year")){
+          console.log("valid")
+        }
+        else{
+          alert("Invalid Year")
+          ev.target.textContent = savedValue;
+          ev.target.blur();
+          savedValue = undefined;
+          return
+        }
+      }
+      else if (ev.target.getAttribute("data-column-id") == "holiday_month"){
+        if (validate_number(ev.target.textContent, "month")){
+          console.log("valid")
+        }
+        else{
+          alert("Invalid Month")
+          ev.target.textContent = savedValue;
+          ev.target.blur();
+          savedValue = undefined;
+          return
+        }
+      }
+      else if (ev.target.getAttribute("data-column-id") == "holiday_day"){
+        if (validate_number(ev.target.textContent, "day")){
+          console.log("valid")
+        }
+        else{
+          alert("Invalid Day")
+          ev.target.textContent = savedValue;
+          ev.target.blur();
+          savedValue = undefined;
+          return
+        }
+      }
+
+      if(savedValue !== ev.target.textContent){
+        fetch('{{ url_for("admin.editHoliday") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: ev.target.dataset.elementId,
+          [ev.target.dataset.columnId]: ev.target.textContent
+        }),
+      });
+
+      holiday_table.forceRender();
+
+      const el_id = ev.target.dataset.elementId;
+      
+ 
+
+
+      alert("Updated!");
+    }
+      }
+      
+      
+    savedValue = undefined;
+
+  }
+});
+
+
+tableDiv.addEventListener('keydown', ev => {
+        if (ev.target.tagName === 'TD') {
+          if (ev.key === 'Escape') {
+            ev.target.textContent = savedValue;
+            ev.target.blur();
+          }
+          else if (ev.key === 'Enter') {
+            ev.preventDefault();
+            ev.target.blur();
+          }
+        }
+      });
+
+
+var switchStatus = false;
+
+tableDiv.addEventListener('change', ev => {
+
+  let parent_target = ev.target.parentNode.parentNode.parentNode;
+
+        if (parent_target.tagName === 'TD') {
+          console.log(ev.target.type)
+
+          if (ev.target.type === 'checkbox') {
+            switchStatus = ev.target.checked;
+            console.log("switchStatus= " + switchStatus)
+
+            console.log(parent_target.dataset.elementId)
+
+          fetch('{{ url_for("admin.editHoliday") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: parent_target.dataset.elementId,
+          [parent_target.dataset.columnId]: switchStatus
+        }),
+      });
+
+          if(switchStatus){
+            alert("Activated!");
+          }
+          else{
+            alert("Deactivated!");
+          }
+          }
+
+          
+          
+        }
+      });
+
+
+      $( function() {
+    $( "#datepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'dd-mm-yy'
+    });
+     } );
+
+
+
+
+
+
+      $( function() {
+    var dialog, form,
+ 
+    holiday_name = $( "#holiday_name" ),
+    holiday_date = $( "[name='holiday_date']" ),
+      allFields = $( [] ).add( holiday_name ).add( holiday_date ),
+      tips = $( ".validateTips" );
+ 
+    function updateTips( t ) {
+      tips
+        .text( t )
+        .addClass( "ui-state-highlight" );
+      setTimeout(function() {
+        tips.removeClass( "ui-state-highlight", 1500 );
+      }, 500 );
+    }
+ 
+    function checkLength( o, n, min, max ) {
+      if ( o.val().length > max || o.val().length < min ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "Length of " + n + " must be between " +
+          min + " and " + max + "." );
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+
+    async function checkExistenceOfTypes( o, name, n ) {
+
+      console.log("1. input: " + o.val());
+      const input = o.val();
+
+
+      const existing_types = [];
+
+        const response = await fetch('{{ url_for("admin.addNewHoliday") }}',{
+
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'} });
+        
+        const jsonData = await response.json();
+
+
+        console.log("Fetch completed");
+        console.log(jsonData);
+        console.log("2. input: " + o.val());
+
+
+        for(var key in jsonData){
+                console.log(jsonData[key]);
+                existing_types.push(jsonData[key]);
+                
+              }
+
+        
+        console.log("existing: " + Array.from(existing_types));
+
+        if(Array.from(existing_types).includes(input.toUpperCase()) ){
+          o.addClass( "ui-state-error" );
+          updateTips( n );
+          console.log("false; " + existing_types + " " + input);
+          return false;
+        } 
+        
+        else {
+          
+          console.log("true; " + existing_types + " " + o.val());
+          return true;
+        }
+
+        return false;
+    }
+ 
+    async function addLeaveType() {
+      var valid = true;
+      allFields.removeClass( "ui-state-error" );
+ 
+      console.log("holiday name ");
+      valid = valid && checkLength( holiday_name, "Leave Code", 2, 15 );
+
+      console.log("holiday date" + valid);
+      valid = valid && checkLength( holiday_date, "Leave Name", 3, 15 );
+      // valid = valid && await checkExistenceOfTypes( leave_code, "Leave Code", "This Code already exists, pleaase choose another one.");
+
+      console.log("status: " + valid);
+   
+      if ( valid ) {
+
+        await fetch('{{ url_for("admin.addNewHoliday") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          'holiday_name': holiday_name.val().toUpperCase(),
+          'holiday_date': holiday_date.val(),
+        }),
+      });
+
+        dialog.dialog( "close" );
+        holiday_table.forceRender();
+      }
+
+    
+      return valid;
+    }
+ 
+    dialog = $( "#dialog-form" ).dialog({
+      autoOpen: false,
+      height: 400,
+      width: 350,
+      modal: true,
+      buttons: {
+        "Add a new holiday": addLeaveType,
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+        allFields.removeClass( "ui-state-error" );
+      }
+    });
+ 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      addLeaveType();
+    });
+ 
+    $( "#create_leave_types" ).button().on( "click", function() {
+      dialog.dialog( "open" );
+    });
+  } );
+
+</script>
+
+
+
+
+
+{% endblock %}

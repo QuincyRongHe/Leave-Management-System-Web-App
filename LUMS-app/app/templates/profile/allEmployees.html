@@ -1,0 +1,193 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+
+<h1 class="heading-margins">My Employees</h1>
+
+<div class="table-container">
+    <main>
+        <div class="general-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Position</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>More Info</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+
+                    {% set emp_id = employee[0] %}
+                    {% set emp_first_name = employee[1] %}
+                    {% set emp_last_name = employee[2] %}
+                    {% set emp_pos = employee[3] %}
+                    {% set emp_dept = employee[4] %}
+                    {% set emp_role = employee[5] %}
+
+                    <tr>
+                        <td>{{ emp_first_name + ' ' + emp_last_name}}</td>
+                        <td>{{ emp_pos }}</td>
+                        <td>{{ emp_dept }}</td>
+                        <td>{{ emp_role }}</td>
+                        <td>
+                            <a href="{{ url_for('profile.viewMyEmployees', emp_id=emp_id) }}">
+                                <i class="fas fa-user" id="employee-table-user-icon" data-tooltip="View Details"></i>
+                            </a>
+                            <a href="{{ url_for('request.myLeaveBalance', emp_id=emp_id) }}">
+                                <i class="fas fa-piggy-bank" id="employee-table-balance-icon" data-tooltip="View Balance"></i>
+                            </a>
+                            <a href="{{ url_for('request.viewMyRequests', emp_id=emp_id) }}">
+                                <i class="fas fa-envelope" id="employee-table-leave-icon" data-tooltip="View Leave Requests"></i>
+                            </a>
+                        </td>
+                        
+                    </tr>
+
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const tooltips = document.querySelectorAll('[data-tooltip]');
+                            tooltips.forEach(function(tooltip) {
+                                tooltip.addEventListener('mouseenter', function() {
+                                    const tooltipText = this.getAttribute('data-tooltip');
+                                    const tooltipElement = document.createElement('span');
+                                    tooltipElement.classList.add('tooltip');
+                                    tooltipElement.innerText = tooltipText;
+                                    document.body.appendChild(tooltipElement);
+                    
+                                    const tooltipPosition = this.getBoundingClientRect();
+                                    const tooltipTop = tooltipPosition.top + window.pageYOffset - tooltipElement.offsetHeight - 8;
+                                    const tooltipLeft = tooltipPosition.left + window.pageXOffset + tooltipPosition.width / 2 - tooltipElement.offsetWidth / 2;
+                                    tooltipElement.style.top = tooltipTop + 'px';
+                                    tooltipElement.style.left = tooltipLeft + 'px';
+                                });
+                    
+                                tooltip.addEventListener('mouseleave', function() {
+                                    const tooltipElement = document.querySelector('.tooltip');
+                                    if (tooltipElement) {
+                                        tooltipElement.parentNode.removeChild(tooltipElement);
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                {% if page > 1 %}
+                    <a class="page-link" href="{{ url_for('profile.viewMyEmployees', page=page-1) }}">Previous</a>
+                {% endif %}
+                
+                {% for num in range(1, pages + 1) %}
+                    {% if num == page %}
+                        <span class="current page-link">{{ num }}</span>
+                    {% else %}
+                        <a class="page-link" href="{{ url_for('profile.viewMyEmployees', page=num) }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page < pages %}
+                    <a class="page-link" href="{{ url_for('profile.viewMyEmployees', page=page+1) }}">Next</a>
+                {% endif %}
+            </div>
+            
+            <h2>Showing {{ start_idx }} to {{ end_idx }} of {{ total }} employees</h2>
+            
+        </div>
+    </main>
+</div>
+
+<br>
+<br>
+
+<h1 class="heading-margins"> Leave Requests of All My Employees </h1>
+
+<div class="table-container">
+    <main>
+        <div class="general-table">
+
+            <form method="GET" action="{{ url_for('profile.viewMyEmployees') }}">
+                <label for="search-name">Name:</label>
+                <input type="text" id="search-name" name="search_name" value="{{ request.args.get('search_name', '') }}" placeholder="Enter a name" style="border: 1px solid #ccc; padding: 5px; font-size: 16px;">
+                <label for="search-status">Status:</label>
+                <select id="search-status" name="search_status" style="border: 1px solid #ccc; padding: 5px; font-size: 16px;">
+                    <option value="">All</option>
+                    <option value="Approved" {% if request.args.get('search_status', '') == 'Approved' %}selected{% endif %}>Approved</option>
+                    <option value="Rejected" {% if request.args.get('search_status', '') == 'Rejected' %}selected{% endif %}>Rejected</option>
+                    <option value="Deleted" {% if request.args.get('search_status', '') == 'Deleted' %}selected{% endif %}>Deleted</option>
+                </select>
+                <input type="submit" value="Search" style="border: 1px solid #ccc; padding: 5px; font-size: 14px;">
+            </form>
+            
+            
+
+            {% if not allEmployeesRequests %}
+            <p>No leave requests found for all employees.</p>
+            {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Employee</th>
+                        <th>Submission Date</th>
+                        <th>Leave Type</th>
+                        <th>Status</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in allEmployeesRequests %}
+                    <tr>
+                        <td><a href="{{ url_for('request.viewMyRequests', emp_id=request[1], request_id=request[0]) }}"><i class="fa-solid fa-link" id="leave-request-table-icons"></i>{{ request[0] }}</a></td>
+                        <td>{{ request[2] }}</td>
+                        <td>{{ request[3] | format_date_time }}</td>
+                        <td>{{ request[4] }}</td>
+                        <td class="current-status-button {% if request[5] == 'Approved' %}approved-status{% elif request[5] in ['Cancelled', 'Rejected', 'Deleted'] %}cancelled-status{% elif request[5] in ['Unsubmitted', 'Submitted'] %}unsubmitted-status{% endif %}">
+                            {{ request[5] }}
+                          </td>
+                        {% if request[7] == 0 %}
+                        <td><a href="{{ url_for('request.approveLeaves', emp_id=emp_id, request_id=request[0]) }}"><i class="fa-solid fa-file-pen" id="new-leave-request-table-icon-pen"></i></a></td>
+                    </tr>
+                        {% endif %}
+                        
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div>
+                {% if request_page > 1 %}
+                    <a class="page-link" href="{{ url_for('profile.viewMyEmployees', request_page=request_page-1) }}">Previous</a>
+                {% endif %}
+            
+                {% for num in range(1, request_pages + 1) %}
+                    {% if num == request_page %}
+                        <span class="current page-link">{{ num }}</span>
+                    {% else %}
+                        <a class="page-link" href="{{ url_for('profile.viewMyEmployees', request_page=num) }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            
+                {% if request_page < request_pages %}
+                    <a class="page-link" href="{{ url_for('profile.viewMyEmployees', request_page=request_page+1) }}">Next</a>
+                {% endif %}
+            </div>
+            
+            {% set total_requests = allEmployeesRequests|length %}
+            
+            <h2>Showing {{ request_start_idx }} to {{ request_end_idx }} in total of {{ request_total }} requests</h2>
+            
+
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+{% endblock %}

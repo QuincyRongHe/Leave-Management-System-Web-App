@@ -1,0 +1,132 @@
+{% extends "settings/settings.html" %}
+{% block setting_content %}
+
+
+<div class="form-update-input">
+  <button class="button-settings-options" id="update_balances">Update Leave Balance</button>
+  <div>
+
+        <p class="validateTips" id="update-balances-heading">All form fields are required.</p>
+        
+        <div class="form-mid-section">
+            <label for="next_date" id="update-balance-subheading">Choose a date</label>
+        <input type="text" name="next_date" id="datepicker" value="" class="text ui-widget-content ui-corner-all" readonly>
+
+      </div>
+
+      
+      
+  </div>
+
+  <div class = input id="dialog-confirm" title="Are you sure?">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>This will update balances of all employees, are you sure?</p>
+  </div>
+
+</div>
+
+
+<script>
+
+ 
+$( function() {
+
+    tips = $( ".validateTips" );
+
+
+
+    function updateTips( t ) {
+      tips
+        .text( t )
+        .addClass( "ui-state-highlight" );
+      setTimeout(function() {
+        tips.removeClass( "ui-state-highlight", 1500 );
+      }, 500 );
+    }
+
+    function checkLength( o, n, min, max ) {
+      if ( o.val().length > max || o.val().length < min ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "Please choose a date!" );
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    $( "#update_balances" ).click(function() {
+        $( "#datepicker" ).removeClass( "ui-state-error" );
+
+        if(checkLength($( "#datepicker" ), "date", 1, 11)) {
+            $( "#dialog-confirm" ).dialog( "open" );
+        } 
+        return false    ;
+    });
+
+
+
+    $( "#datepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'dd-mm-yy',
+      minDate: +'{{difference}}', 
+      maxDate: "+12M"
+    });
+
+
+    
+
+    $( "#dialog-confirm" ).dialog({
+        autoOpen:false,
+      resizable: false,
+      height: "auto",
+      width: 400,
+      modal: true,
+      buttons: {
+        "Confirm": async function() {
+          
+          await fetch('{{ url_for("admin.updateLeaveBalances") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'date': $( "#datepicker" ).val()
+            })
+          });
+          window.location.href = '{{ url_for("admin.showsSettings") }}';
+          $( this ).dialog( "close" );
+          
+        },
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     } );
+
+
+$( function() {
+    
+  } );
+
+
+
+</script>
+
+
+
+{% endblock %}

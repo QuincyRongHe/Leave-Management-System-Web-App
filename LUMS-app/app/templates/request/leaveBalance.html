@@ -1,0 +1,278 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+
+<head>
+    <script src="{{ url_for('static', filename='scripts/jquery-2.1.1.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/moment.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/daterangepicker.js') }}" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/boostrap.css') }}" >
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/daterangepicker.css') }}" >
+
+</head>
+
+
+<div class="" id="emp_id" hidden>{{ emp_id }}</div>
+{% if session['userID'] != emp_id %}
+<h1 class="page-subheading"><a href="{{ url_for('profile.viewMyEmployees') }}">
+    <i class="fa-solid fa-arrow-left fa-xl " style="vertical-align: bottom;color: #070ff2;">  </i>
+
+    <span class = "side-bar-item"> View All Employees </span>
+</a></h1> <br />
+    <h1 class="heading-margins"> Balance of {{name}} </h1>
+{% else %}
+    <h1 class="heading-margins"> My Balance </h1>
+{% endif %}
+
+
+<div class = "container">
+
+    <div class = "table-container">
+    <main>
+
+            <div class="general-table">
+                <h2>Current Balance Status</h2>
+                <table>
+                    <thead>
+                        <tr>
+                        <th>Type of Leave</th>
+                        <th>Units</th>
+                        <th>Balance (as at close of last pay)</th>
+                        <th>Leave approved not paid</th>
+                        <th>Leave applied not yet approved</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for balance in balances %}
+                
+                        {% set leave_type = balance[0] %}
+                        {% set leave_unit = 'hours (days)' %}
+                        {% set current_balance = balance[1] %}
+                        {% set lanp = balance[2] %}
+                        {% set lanp_d = balance[3] %}
+                        {% set lana = balance[4] %}
+                        {% set lana_d = balance[5] %}
+                        <tr>
+                            <td>{{ leave_type }}</td>
+                            <td>{{ leave_unit }}</td>
+                            <td>{{ current_balance }} ({{'%0.2f'| format(current_balance|float / 7.5)}})</td>
+                            <td>{{ lanp }} ({{lanp_d}})</td>
+                            <td>{{ lana }} ({{lana_d}})</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+            </div>
+
+        </main>
+        
+    </div>
+    <br /><br /><br /><br />
+
+
+
+    {% if session['userID'] != emp_id %}
+        <h1 class="heading-margins"> Calculate Projected Leave Balance for {{name}}</h1>
+    {% else %}
+        <h1 class="heading-margins"> Calculate My Projected Leave Balance</h1>
+    {% endif %}
+
+    <input type="text" name="datefilter" placeholder="Pick a Date!" value="" readonly="readonly" hidden /> 
+
+
+
+            <div class="inline-container"> 
+
+
+                    
+                <div class="cut25">
+
+                    <div class = "table-container" >
+                        <main>
+                    <div id="choose-dates" style="margin-left: auto; margin-right: auto; width: 15.5em; margin-top: 45px;"></div>
+                        </main>
+                    </div>
+
+
+                </div> 
+                <div class="cut75-leave-balance">
+
+                    <div class = "table-container" >
+                        <main>
+                        <div class="general-table">
+                            
+                            <h2 id="headline"> <span id="from-date">  </span> <span id="instru"> </span> </h2>
+                
+                            <table>
+                
+                                <tbody>
+                
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Hours (Days)</th>
+                                        
+                                    </tr>
+                                    
+                                
+                                    <tr>
+                                    <td>Current annual balance</td>
+                                    <td>{{balances[0][1]}} ({{'%0.2f'| format(balances[0][1]|float / 7.5)}})</td>
+                                    
+                                    </tr>
+                                    <tr>
+                                        <td>LESS Leave approved but not yet paid</td>
+                                        <td><span id="leave_approved_not_paid">{{balances[0][2]}} ({{balances[0][3]}})</span></td>
+                                    
+                                    </tr>
+                                    <tr>
+                                        <td>LESS Leave applied but not yet approved</td>
+                                        <td><span id="leave_applied_not_approved">{{balances[0][4]}} ({{balances[0][5]}})</span></td>
+                                    
+                                    </tr>
+                
+                                    <tr>
+                                        <td>PLUS projected accrual to <span id="small-date"></span></td>
+                                        <td><span id="accrual"></span></td>
+                                    
+                                    </tr>
+                
+                                    <tr>
+                                        <th>Estimated projected annual balance:</th>
+                                        <td><span id="total"></span></td>
+                                    
+                                    </tr>
+                
+                                </tbody>
+                                    
+                
+                            </table>
+                            
+                        </div>
+                    </main>
+                
+                    </div>
+                    
+                </div>
+            </div>
+                
+        
+
+
+</div>
+
+
+
+<script type="text/javascript">
+
+
+
+    $('input[name="datefilter"]').daterangepicker({
+        parentEl: '#choose-dates',
+        autoUpdateInput: false,
+        locale: { cancelLabel: 'Clear', format: 'DD/MM/YYYY' },
+        minDate: moment().startOf('day').add(0, 'day'),
+        showDropdowns: true,
+        singleDatePicker: true,
+        isInvalidDate: function(date) {
+
+    if (date.day() == 0 || date.day() == 6 ) {
+    
+      
+        return true;
+    } else {
+        return false;
+    }
+}
+
+    })
+
+    $('.daterangepicker').css({
+                            'position' : 'initial', 
+                            'top' : '', 
+                            'left' : '',
+                            'z-index' : ''});
+
+            
+
+
+            $('input[name="datefilter"]').click();
+            
+            $('.drp-buttons .applyBtn').remove()
+
+  
+
+
+$('input[name="datefilter"]').on('dateselect.daterangepicker', function(ev, picker) {
+  $(this).val(picker.startDate.format('DD/MM/YYYY'));
+//   $('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+
+  
+  document.getElementById("instru").innerHTML = picker.startDate.format('DD/MM/YYYY');
+  document.getElementById("small-date").innerHTML = picker.startDate.format('DD/MM/YYYY');
+  let current_days = "{{'%0.2f'| format(balances[0][1]|float / 7.5)}}";
+
+  var emp_id = document.getElementById("emp_id").innerHTML;
+
+  var d = picker.startDate.format('DD/MM/YYYY');
+    $.ajax({  
+        url:"/projectleaves",  
+        type:"POST",  
+        contentType: 'application/json;charset=UTF-8',
+        data:JSON.stringify({'todate':d, 'emp_id':emp_id}),  
+        
+        success:function(rep)  
+        {  
+
+            const response = JSON.parse(rep)
+            let fromDate = response['data'][0];
+            let accrual = response['data'][1];
+            let accrual_days = response['data'][2];
+            let lanp = response['data'][3];
+            let lanp_days = response['data'][4];
+            let lana = response['data'][5];
+            let lana_days = response['data'][6];
+            let total = response['data'][7];
+            let total_days = response['data'][8];
+            
+            // const ans=rep.split(',')
+            // alert(ans[1]); 
+            
+            console.log(response)
+            document.getElementById("from-date").innerHTML = "From " + new Date(response['data'][0]).toLocaleDateString("en-NZ") + " (Last Updated) to ";
+            document.getElementById("accrual").innerHTML = response['data'][1] + " (" + response['data'][2] + ")";
+            document.getElementById("leave_approved_not_paid").innerHTML = response['data'][3] + " (" + response['data'][4] + ")";
+            document.getElementById("leave_applied_not_approved").innerHTML = response['data'][5] + " (" + response['data'][6] + ")";
+            document.getElementById("total").innerHTML = total + " (" + total_days + ")";
+        }  
+    });  
+             
+});
+
+$('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
+  //do something, like clearing an input
+  console.log("cancel");
+  
+  picker.setStartDate({})
+  $(this).val("")
+    document.getElementById("from-date").innerHTML = '';
+    document.getElementById("accrual").innerHTML = '';
+    document.getElementById("leave_approved_not_paid").innerHTML = '';
+    document.getElementById("leave_applied_not_approved").innerHTML = '';
+    document.getElementById("total").innerHTML = '';
+});
+
+
+
+
+</script>
+  
+
+
+    {% endblock %}
+
+
+
+

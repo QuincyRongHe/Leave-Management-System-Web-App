@@ -1,0 +1,138 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+
+{% set emp_id = request[12] %}
+
+{% if session['userID'] != emp_id %}
+<h1 class="page-subheading"><a href="javascript:history.back()">
+  <i class="fa-solid fa-arrow-left fa-xl " style="vertical-align: bottom;color: #070ff2;">  </i>
+
+  <span class = "side-bar-item">Last Page</span>
+</a></h1> <br />
+{% endif %}
+
+
+<h1 class="heading-margins"> Request Details </h1>
+
+
+<div class = "table-container">
+    <main>
+        <div class="general-table">
+
+            {% if leaveRequestDetails %}
+            
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Employee</th>
+                        <th>Submission Date</th>
+                        <th>Leave Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Requested Leave Period</th>
+                        <th>Note</th>
+                        <th>Taken</th>
+                        <th>Status</th>
+            
+                        {% if leaveRequestDetails[0][9] is not none %}
+                        <th>Decision Made By</th>
+                        {% endif %}
+
+                        {% if leaveRequestDetails[0][10] is not none %}
+                        <th>Decision Date</th>
+                        {% endif %}
+
+                        {% if leaveRequestDetails[0][11] is not none %}
+                        <th>Comment</th>
+                        {% endif %}
+
+                        {% if current_endpoint == 'approveLeaves' %}
+                        <th>Modify</th>
+                        {% endif %}
+                        
+                    </tr> 
+                </thead>
+                
+
+                <tbody>
+                    {% for request in leaveRequestDetails %}
+
+                    {% set requestID = request[0] %}
+
+                    <tr>
+                        <td>{{ request[0] }}</td>
+                        <td>{{ request[1] }}</td>
+                        <td>{{ request[2] | format_date_time }}</td>
+                        <td>{{ request[3] }}</td>
+                        <td>{{ request[4] | nz_date }}</td>
+                        <td>{{ request[5] | nz_date }}</td>
+                        <td>{{ leave*7.5 }} hrs ({{ leave }} days)</td>
+                        <td>{{ request[6] if request[6] is not none else 'None' }}</td>
+                        <td>{{ 'No' if request[7] == 0 else 'Yes' }}</td>
+                        <td>{{ request[8] }}</td>
+                        
+                        {% if request[9] is not none %}
+                        <td>{{ request[9] }}</td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+
+                        {% if request[10] is not none %}
+                        <td>{{ request[10] | format_date_time }}</td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+
+                        {% if request[11] is not none %}
+                        <td>{{ request[11] }}</td>
+                        {% endif %}
+
+                        {% if current_endpoint == 'approveLeaves' %}
+                            <td><a href="{{ url_for('request.modify', req_id=requestID) }}"><i class="fas fa-solid fa-calendar-days" id="new-leave-request-table-icon-pen"></i></a></td>
+                    </tr>
+                    <tr>
+                            <td colspan="12">
+                            <form id="decision-form" method="post" action="{{ url_for('request.leave_decision', request_id=request[0]) }}">
+                               
+                                <label for="comment" style="font-size: 20px;">Comment:</label><br>
+                                <textarea id="comment" name="comment" placeholder="Enter your comment here..." style="width: 300px; height: 100px; font-size: 16px; border: 1px solid black;"></textarea><br>
+                                <input type="submit" name="decision" value="Approve" style="font-size: 16px; padding: 5px 10px; background-color: #1E90FF; color: white;">
+                                <input type="submit" name="decision" value="Reject" style="font-size: 16px; padding: 5px 10px; background-color: #f08080; color: white;">
+                                <input type="submit" name="decision" value="Delete" style="font-size: 16px; padding: 5px 10px; background-color:#d3b015; color: white;">
+                            </form>
+                            <script>
+                                document.getElementById('decision-form').addEventListener('submit', function(event) {
+                                    var comment = document.getElementById('comment').value;
+                                    var decision = event.submitter.value;
+                                    if ((decision === 'Reject' || decision === 'Delete') && comment.trim() === '') {
+                                        event.preventDefault();
+                                        alert('Please enter a comment when rejecting or deleting.');
+                                    } else if (decision === 'Delete' && !confirm("Are you sure you want to delete this request?")) {
+                                        event.preventDefault();
+                                    }
+                                });
+                            </script>
+                        </td>
+                    </tr>
+                        {% endif %}
+                    
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+            <p>No leave requests found.</p>
+        
+            {% endif %}
+        
+        </div>
+    
+    </main>
+    
+</div>
+
+{% endblock %}

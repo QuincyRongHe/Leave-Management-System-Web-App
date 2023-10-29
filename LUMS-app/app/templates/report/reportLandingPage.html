@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<head>
+
+    <link rel="stylesheet" tpye="text/css" href= "{{ url_for('static', filename='stylesheets/buttons.css') }}" >
+    <link rel="stylesheet" tpye="text/css" href= "{{ url_for('static', filename='jquery-ui/jquery-ui.css') }}" >
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/mermaid.min.css') }}" >
+    
+
+    
+    <script src="{{ url_for('static', filename='jquery-ui/jquery-ui.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/gridjs.umd.js') }}"></script>
+
+</head>
+
+
+
+<h1 class="heading-margins" id="report-heading"> Choose A Report </h2>
+    <div class = "table-container" id="settings-table">
+        <main>
+        
+
+
+        <div class="general-table" id="general-options-table">
+
+            
+
+                <div class="inline-container" id="report-container">
+
+                   
+                            <!--<div class="cut15">
+                            </div>-->
+                    
+                    <div class="cut25">
+                        <form action="{{ url_for('report.annualRport') }}" method="get">
+                            <button class="button-settings-options" role="button">Annual Liability Report</button>
+                        </form>
+                    </div>
+            
+                        <!--<div class="cut15">    
+                        </div>-->
+            
+                    <div class="cut25">
+                
+                        <form action="{{ url_for('report.exceptionReport') }}" method="get">
+                            <button class="button-settings-options" role="button">Leave Exception Report</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+</div>
+
+{% block report_content %}  {% endblock %}
+
+
+
+
+{% endblock %}

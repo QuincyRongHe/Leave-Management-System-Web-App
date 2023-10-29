@@ -1,0 +1,98 @@
+/*==============Header CSS===============
+
+.mainheader-background {
+    color: var(--color-navy);
+    background-size:cover;
+    text-align: left;
+    padding: 20px;
+    margin-left: 200px
+  }
+
+h1.dashboard-header {
+    color: red
+}
+
+
+/* ============I moved all this footer CSS to the main page ================
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background: var(--color-light-grey);
+    display:flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+
+footer{
+    background-color: var(--color-navy-blue);
+    color: var(--color-light-grey);
+    height: 250px;
+    width: 100%;
+    font-family: sans-serif;
+    padding-top: 40px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom:0;
+
+}
+
+
+.footer-main-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction:column;
+    text-align: center;
+}
+
+.footer-main-content h3{
+    font-size: 30px;
+}
+
+.footer-main-content p {
+    max-width: 500px;
+    margin: 10px auto;
+    line-height: 28px;
+    font-size: 12px
+}
+
+.social-media {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0 3rem 0;
+}
+
+.social-media li{
+    margin: 0 1rem;
+    color: var(--color-light-grey)
+}
+
+.social-media a i{
+    font-size: 1rem;
+    transition: color .4 ease;
+}
+
+.social-media a:hover i{
+    color: var(--color-yellow)
+
+}
+
+.footer-bottom{
+    background-image: url("/static/images/koru.jpg");
+    width: 100vw;
+    padding: 20ox 0;
+    text-align: center;
+
+}
+
+/*

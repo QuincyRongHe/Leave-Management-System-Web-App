@@ -1,0 +1,140 @@
+/* The CSS below is for the user login page*/
+
+*{
+    font-family: "Open Sans", sans-serif;
+    font-size:1.5rem;
+}
+
+body{
+    background-image: url("/static/images/lincolnuni.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+
+}
+
+.login-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40vh
+}
+
+.login-container{
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 15px 0 15px;
+
+}
+.small-header{
+    color: var(--color-navy);
+    font-size: small;
+    display: flex;
+    justify-content: center;
+    padding: 15px 0px 1px 0px;
+    margin-top: 15px;
+}
+
+header.login-header{
+    color: var(--color-white);
+    font-size: 35px;
+    display: flex;
+    justify-content: center;
+    padding: 1px 0px 7px 0px;
+    margin-top: 25px;
+    margin-bottom: -10px;
+}
+
+/*outer opacity area of login*/
+.login-input-field{
+    color: white;
+    background: var(--color-white-opacity);
+    border-radius: 30px;
+    padding: 10px 10px 5px 10px;
+    margin-bottom: 0;
+    margin-top: 5px;
+
+}
+
+.login-input{
+    color: white;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    margin-bottom: -37px;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: medium;
+}
+
+
+
+.fas{
+    position: relative;
+    color: var(--color-yellow);
+    top: -29px;
+    right: -334px;
+    font-size: 13px
+}
+
+.login-btn{
+    border: none;
+    font-size: 15px;
+    height: 45px;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 103px;
+    background: var(--color-white);
+    border-radius: 30px;
+    width: 100%;
+    display: flex;
+
+
+}
+
+.login-btn:hover{
+    box-shadow: 1px 5px 7px 1px var(--color-navy-opacity);
+    background-color: var(--color-navy-opacity);
+    color: var(--color-yellow);
+}
+
+.login-bottom{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: small;
+    margin-top: 10px;
+}
+
+label a{
+    color: white;
+    text-decoration: none;
+}
+
+.login .flash {
+    position: relative;
+    top: 100px;
+    left: -377px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: -1;
+    font-size: 1rem;
+
+}
+
+#password-input{
+    margin-bottom:2px;
+}
+
+#fas-user{
+    top: 10px
+}
+
+

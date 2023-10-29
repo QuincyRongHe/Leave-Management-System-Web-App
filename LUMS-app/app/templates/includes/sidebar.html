@@ -1,0 +1,123 @@
+<!-- Creating a side navigation bar-->
+
+<style>
+    
+
+</style>
+
+  
+
+<div class = "sidebar">
+    <nav>
+
+        <ul>
+            <li>
+                <!--Replace the # with the link to different pages when you want to add to side bar :) -->
+                
+
+                <div class="sidebar-aligner">
+                    <a href="{{ url_for('home') }}" class = "navlogo">
+                        <img style="display: inline; vertical-align:middle" src="/static/images/logo.jpg"  alt="">
+                        <span class = "side-bar-item" id="side-bar-title">Lincoln Leave</span>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <a href="{{ url_for('home') }}">
+                    <i class ="fas fa-home"></i>
+                    <span class = "side-bar-item">Home</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="{{ url_for('request.viewMyRequests') }}">
+                    <i class ="fas fa-solid fa-envelope"></i>
+                    <span class = "side-bar-item">My Requests</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('request.myLeaveBalance') }}">
+                    <i class="fas fa-solid fa-piggy-bank"></i>
+                    <span class = "side-bar-item">My Balance</span>
+                </a>
+            </li>
+
+
+
+            <li>
+                <a href="{{ url_for('request.apply') }}">
+                    <i class ="fas fa-solid fa-calendar-days"></i>
+                    <span class = "side-bar-item">Leave Application</span>
+                </a>
+            </li>
+
+            {% if session.get('role') and session['role'] >= 2 %} 
+
+            <li>
+                <a href="{{ url_for('profile.viewMyEmployees') }}">
+                    <i class="fas fa-solid fa-people-group"></i>
+                    <span class = "side-bar-item">My Employees</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('request.approveLeaves') }}">
+                    <i class="fas fa-solid fa-file-pen"></i>
+                    <span class = "side-bar-item">Approve Leave</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('report.reportPage') }}">
+                    <i class="fas fa-solid fa-file-excel"></i>
+                    <span class = "side-bar-item">Reports</span>
+                </a>
+            </li>
+
+            {% endif %}
+            
+            <li>
+                <a href="{{ url_for('myorg') }}">
+                    <i class="fas fa-sharp fa-solid fa-network-wired"></i>
+                    <span class = "side-bar-item">My Organisation</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('help.help') }}">
+                    <i class="fas fa-phone"></i>
+                    <span class = "side-bar-item">Contact Us</span>
+                </a>
+            </li>
+
+            <!--<li>
+                <a href="{{ url_for('auth.logout') }}">
+                    <i class ="fas fa-solid fa-right-from-bracket"></i>
+                    <span class = "side-bar-item" class = "logout-button">Log Out</span>
+                </a>
+            </li>-->
+
+            <!-- <li>
+                <a href="{{ url_for('admin.showsSettings') }}">
+                    <i class="fas fa-solid fa-gear"></i>
+                    <span class = "side-bar-item" class = "settings-button">Settings</span>
+                </a>
+            </li> -->
+
+            <!-- <form class="back-button-form">
+                <a>
+                <i class="fas fa-solid fa-arrow-left"></i>
+
+                <input type="button" value="Go back" onclick="history.back()" class="side-bar-item back-button">
+            </a>
+            </form> -->
+
+        </ul>
+        
+
+
+
+    </nav>
+
+</div>

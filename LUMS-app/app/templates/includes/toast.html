@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jQuery UI Dialog - Modal message</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  <script>
+
+  $( function() {
+    $( "#dialog-message" ).dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  } );
+  </script>
+</head>
+
+{% if status == 1 %}
+{% set dialog = "You have submitted the request successfully." %}
+{% else %}
+{% set dialog = "You have saved the request successfully." %}
+{% endif %}
+
+
+
+<body>
+ 
+<div  class = "pop-up-container" id="dialog-message">
+  <h2>
+{{dialog}}
+  </h2>
+ 
+</div>
+
+</body>
+</html>

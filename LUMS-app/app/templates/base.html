@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+        <html>
+        
+            <head>
+              <!--Links and scripts-->
+
+                <!-- CSS only -->
+                <!--<link rel="stylesheet" tpye="text/css" href= "{{ url_for('static', filename='stylesheets/bootstrap.css') }}" >-->
+                <link rel="stylesheet" tpye="text/css" href= "{{ url_for('static', filename='stylesheets/maincss.css') }}" >
+                
+                <meta charset="utf-8" naem="viewport" content="width=device-width"/>
+                <title>{% block title %} LU Leave Mangement System {% endblock %}</title>
+                
+                <script src="{{ url_for('static', filename='scripts/bootstrap.bundle.js') }}" crossorigin="anonymous"></script>
+                <script src="{{ url_for('static', filename='scripts/fontawesome.js') }}" crossorigin="anonymous"></script>
+                <script src="{{ url_for('static', filename='scripts/jquery-2.1.1.min.js') }}" crossorigin="anonymous"></script>
+
+            </head>
+
+            <style>
+            .button {
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              cursor: pointer;
+            }
+            </style>
+            
+            {% include 'includes/header.html' %}
+            {% include 'includes/sidebar.html' %}
+        
+            <body>
+              <main>
+                
+        
+        
+        
+                      <div class="base-content" >
+
+                        
+                            {% for message in get_flashed_messages() %}
+                                  <div class="flash">{{ message }}
+            
+                                  </div>
+                                  {% endfor %}
+
+                                  {% block content %}{% endblock %}
+        
+                      </div>
+        
+        
+                </main>
+        
+            </body>
+        
+
+            <footer>
+            {% include 'includes/footer.html' %}
+          </footer>
+          
+
+          {% include 'includes/scripts.html' %}
+        </html>
+        
+        

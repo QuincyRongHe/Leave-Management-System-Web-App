@@ -1,0 +1,423 @@
+{% extends "settings/settings.html" %}
+{% block setting_content %}
+
+<head>
+
+
+
+    <style>
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+      
+      .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 15px;
+      }
+      
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 15px;
+      }
+      
+      input:checked + .slider {
+        background-color: var(--color-navy-opacity)
+      }
+      
+      input:focus + .slider {
+        box-shadow: 0 0 1px var(--color-navy-opacity);
+      }
+      
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+      
+      /* Rounded sliders */
+      .slider.round {
+        border-radius: 34px;
+      }
+      
+      .slider.round:before {
+        border-radius: 50%;
+      }
+      </style>
+
+</head>
+
+<div>
+
+ 
+    
+
+    <div id="dialog-form" title="Create a new leave type">
+      <p class="validateTips">All form fields are required.</p>
+      <br/>
+     
+      <form>
+        <fieldset>
+          <label for="leave_code">Leave Code</label>
+          <input type="text" name="leave_code" id="leave_code" value="" class="text ui-widget-content ui-corner-all">
+          <label for="leave_name">Leave Name</label>
+          <input type="text" name="leave_name" id="leave_name" value="" class="text ui-widget-content ui-corner-all">
+       
+     
+          <!-- Allow form submission with keyboard without duplicating the dialog button -->
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+     
+    <button class="button-settings-options" id="create_leave_types">Click here to create a new leave type</button>
+
+    <div id="table"></div>
+
+     
+     
+
+  
+    
+    
+</div>
+
+<script>
+
+  const tableDiv = document.getElementById('table');
+
+const editableCellAttributes = (data, row, col) => {
+
+          if (row) {
+            // console.log("row: " + row.cells[0].data)
+            const attr = {contentEditable: 'true', 'data-element-id': row.cells[0].data};
+            return attr;
+          }
+          else {
+            return {};
+          }
+      };
+
+const add_element_id = (data, row, col) => {
+  console.log('1st row')
+  console.log(row)
+
+if (row) {
+  console.log('2nd row')
+  console.log(row)
+  // console.log( row.cells[0].data)
+  if(row.cells[0].data){
+    console.log('3nd row')
+  console.log(row)
+
+    const add_id = {'data-element-id': row.cells[0].data};
+  return add_id;
+
+  }
+  return {};
+  
+}
+else {
+  return {};
+}
+};
+
+
+  const leave_types_table = new gridjs.Grid({
+        columns: [
+          { id: 'leave_code', name: 'Code' },
+          { id: 'leave_name', name: 'Name', attributes: editableCellAttributes },
+          { id: 'leave_per_year', name: 'Hours per year' },
+          { id: 'is_active', name: 'Active', 
+              
+              formatter: (cell, row, col) => {
+
+                  if(col){
+                    if (cell == 1){
+                      return gridjs.html(`<label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`)
+
+                  }else {
+                      return gridjs.html(`<label class="switch"><input type="checkbox" ><span class="slider"></span></label>`)
+                  }
+
+                  }
+                  
+          
+          }, 'attributes': add_element_id },
+        ],
+
+        server:{
+          url:'{{ url_for("admin.getLeaveTypes") }}', 
+          then: results => results.map(lt => [lt.leave_code, lt.leave_name, lt.leave_per_year, lt.is_active])
+
+        },
+        search: true,
+        sort: true
+      }).render(table);
+
+
+
+
+
+
+
+      let savedValue;
+
+tableDiv.addEventListener('focusin', ev => {
+        if (ev.target.tagName === 'TD') {
+          savedValue = ev.target.textContent;
+        }
+      });
+
+
+
+
+tableDiv.addEventListener('focusout', ev => {
+
+  if (ev.target.tagName === 'TD') {
+    if (savedValue !== ev.target.textContent) {
+      
+          ev.target.blur();
+
+      if(savedValue !== ev.target.textContent){
+        fetch('{{ url_for("admin.editLeaveTypes") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: ev.target.dataset.elementId,
+          [ev.target.dataset.columnId]: ev.target.textContent
+        }),
+      });
+
+      leave_types_table.forceRender();
+
+      const el_id = ev.target.dataset.elementId;
+      
+ 
+
+
+      alert("Updated!");
+    }
+      }
+      
+      
+    savedValue = undefined;
+
+  }
+});
+
+
+tableDiv.addEventListener('keydown', ev => {
+        if (ev.target.tagName === 'TD') {
+          if (ev.key === 'Escape') {
+            ev.target.textContent = savedValue;
+            ev.target.blur();
+          }
+          else if (ev.key === 'Enter') {
+            ev.preventDefault();
+            ev.target.blur();
+          }
+        }
+      });
+
+
+var switchStatus = false;
+
+tableDiv.addEventListener('change', ev => {
+
+  let parent_target = ev.target.parentNode.parentNode.parentNode;
+
+        if (parent_target.tagName === 'TD') {
+          console.log(ev.target.type)
+
+          if (ev.target.type === 'checkbox') {
+            switchStatus = ev.target.checked;
+
+            console.log(parent_target.dataset.elementId)
+
+          fetch('{{ url_for("admin.editLeaveTypes") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: parent_target.dataset.elementId,
+          [parent_target.dataset.columnId]: switchStatus
+        }),
+      });
+
+          if(switchStatus){
+            alert("Activated!");
+          }
+          else{
+            alert("Deactivated!");
+          }
+          }
+
+          
+          
+        }
+      });
+
+
+  $( function() {
+    var dialog, form,
+ 
+      leave_code = $( "#leave_code" ),
+      leave_name = $( "#leave_name" ),
+      allFields = $( [] ).add( leave_code ).add( leave_name ),
+      tips = $( ".validateTips" );
+ 
+    function updateTips( t ) {
+      tips
+        .text( t )
+        .addClass( "ui-state-highlight" );
+      setTimeout(function() {
+        tips.removeClass( "ui-state-highlight", 1500 );
+      }, 500 );
+    }
+ 
+    function checkLength( o, n, min, max ) {
+      if ( o.val().length > max || o.val().length < min ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "Length of " + n + " must be between " +
+          min + " and " + max + "." );
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+
+    async function checkExistenceOfTypes( o, name, n ) {
+
+      console.log("1. input: " + o.val());
+      const input = o.val();
+
+
+      const existing_types = [];
+
+        const response = await fetch('{{ url_for("admin.getLeaveTypes", returned_attr="leave_code") }}',{
+
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'} });
+        
+        const jsonData = await response.json();
+
+
+        console.log("Fetch completed");
+        console.log(jsonData);
+        console.log("2. input: " + o.val());
+
+
+        for(var key in jsonData){
+                console.log(jsonData[key]);
+                existing_types.push(jsonData[key]);
+                
+              }
+
+        
+        console.log("existing: " + Array.from(existing_types));
+
+        if(Array.from(existing_types).includes(input.toUpperCase()) ){
+          o.addClass( "ui-state-error" );
+          updateTips( n );
+          console.log("false; " + existing_types + " " + input);
+          return false;
+        } 
+        
+        else {
+          
+          console.log("true; " + existing_types + " " + o.val());
+          return true;
+        }
+
+        return false;
+    }
+ 
+    async function addLeaveType() {
+      var valid = true;
+      allFields.removeClass( "ui-state-error" );
+ 
+      
+      valid = valid && checkLength( leave_code, "Leave Code", 2, 16 );
+      valid = valid && checkLength( leave_name, "Leave Name", 3, 30 );
+      valid = valid && await checkExistenceOfTypes( leave_code, "Leave Code", "This Code already exists, pleaase choose another one.");
+
+      console.log("status: " + valid);
+      console.log("leave_code: " + leave_code.val());
+
+      
+      if ( valid ) {
+
+        await fetch('{{ url_for("admin.addLeaveTypes") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          'leave_code': leave_code.val().toUpperCase(),
+          'leave_name': leave_name.val(),
+        }),
+      });
+
+        dialog.dialog( "close" );
+        leave_types_table.forceRender();
+      }
+
+    
+      return valid;
+    }
+ 
+    dialog = $( "#dialog-form" ).dialog({
+      autoOpen: false,
+      height: 400,
+      width: 350,
+      modal: true,
+      buttons: {
+        "Add a new leave type": addLeaveType,
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+        allFields.removeClass( "ui-state-error" );
+      }
+    });
+ 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      addLeaveType();
+    });
+ 
+    $( "#create_leave_types" ).button().on( "click", function() {
+      dialog.dialog( "open" );
+    });
+  } );
+  </script>
+
+
+
+
+{% endblock %}

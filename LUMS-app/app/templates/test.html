@@ -1,0 +1,50 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<head>
+    <script src="{{ url_for('static', filename='scripts/jquery-2.1.1.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/moment-2.8.4.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/daterangepicker.js') }}" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/boostrap.css') }}" >
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/daterangepicker-bs3.css') }}" >
+
+</head>
+
+<h1>Testing....</h1>
+
+<h2>HH </h2>
+
+<input type="text" name="datefilter" value="" />
+
+<script type="text/javascript">
+$(function() {
+
+  $('input[name="datefilter"]').daterangepicker({
+      autoUpdateInput: false,
+      locale: {
+          cancelLabel: 'Clear'
+      }
+  });
+
+  $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+  });
+
+  $('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
+      $(this).val('');
+  });
+
+});
+</script>
+
+
+
+
+
+
+
+
+
+{% endblock %}

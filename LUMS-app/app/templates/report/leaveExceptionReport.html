@@ -1,0 +1,54 @@
+{% extends "report/reportLandingPage.html" %}
+{% block report_content %}
+
+
+<br><br><br>
+
+
+<div class="table-container" id="leave-report-table">
+    <h1 class="heading-margins">Leave Exception Report</h1>
+    <main>
+        <div class="general-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Posistion</th>
+                        <th>Department</th>
+                        <th>Leave Balance (hours)</th>
+                        <th>Leave Balance (days)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in data %}
+
+                    {% set emp_id = employee[0] %}
+                    {% set fname = employee[1] %}
+                    {% set lname = employee[2] %}
+                    {% set pos = employee[3] %}
+                    {% set dept = employee[4] %}
+                    {% set balance_hr = '%0.2f'| format(employee[5] |float)  %}
+                    {% set balance = employee[5] |float  %}
+                    {% set balance_day = '%0.2f'| format((balance / 7.5))%}
+
+                    <tr>
+                        <td>{{ fname}}</td>
+                        <td>{{ lname }}</td>
+                        <td>{{ pos }}</td>
+                        <td>{{ dept }}</td>
+                        <td>    {{ balance_hr }}   </td>
+                        <td>    {{ balance_day }}   </td>
+                    </tr>
+
+
+                    
+
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %} 
+{% block content %}
+
+<!-- Add CSS file -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/helpcss.css') }}" />
+
+<h1 class="heading-margins">{{ title }}</h1>
+<div class="table-container">
+    <main>
+        <div class="general-table">
+            <div style="display: flex; justify-content: center; text-align: center;">
+                <div style="max-width: 120px; margin-right: 1rem;">
+                    <img src="{{ url_for('static', filename='images/help.svg') }}" alt="User-Profile-Image" width="100" height="100"/>
+                    <i class="fa-solid fa-comments-question-check"></i>
+                </div>
+                <div class="center-text">
+                    <p class="large-text">
+                        If you're experiencing an IT issue, you can contact us by calling the IT help desk.
+                    </p>
+                    <p class="large-text">We're available between 8:30am and 4:30pm, Monday to Friday.</p>
+                    <p class="large-text"><a
+                        rel="noopener" href="tel:034230100" target="_blank" style="color:var(--color-mid-blue);">03 423 0100</a>
+                    </p>
+                    <p class="large-text">or you can email us at&nbsp;<a class="email-link"
+                            href="mailto:ithelp@lincoln.ac.nz" target="_blank"
+                            style="color:var(--color-mid-blue);">ithelp@lincoln.ac.nz</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}

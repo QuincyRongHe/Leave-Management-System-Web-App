@@ -1,0 +1,227 @@
+{% extends "settings/settings.html" %}
+
+{% block setting_content %}
+
+
+<!--Error handling-->
+{% macro show_errs(field) %}
+{% for err in field.errors%}
+
+<p class="center" style="color:  red; font-size: 18px;">{{err}}</p>
+
+{% endfor %}
+{% endmacro %}
+
+{% macro label(field) %}
+
+{% if field.flags.required %}<td>{{ field.label(text='*' + field.label.text) }}:  {%else%} {{ field.label(field.label.text) }}:  {% endif %}
+
+{% endmacro %}
+
+<h1>Employee Roles</h1>
+
+
+<div class="inline-container">
+
+    <div class="cut25">
+        <form action="{{ url_for('admin.searchEmployees') }}" method="POST">
+
+            {{ form.hidden_tag() }} 
+        
+        
+            <div class="form-input" id="form-leave">{{label(form.search)}} {{form.search}} {{show_errs(form.search)}}</div>
+            <div class="form-input" id="form-leave">{{label(form.select_role)}} {{form.select_role}} {{show_errs(form.select_role)}}</div>
+            <div class="form-button" id="form-save">{{form.submit()}}</div>
+            <div class="form-button" id="form-save">{{form.reset()}}</div>
+        </form>
+        
+    </div>
+
+    <div class="cut75">
+
+
+
+        
+
+
+
+
+
+    <form id="updateEmployeeRolesForm" method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Employee ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Current Role</th>
+                    <th>New Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in allEmployeeRoles %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="employee-checkbox" name="selected_employees[]" value="{{ employee[0] }}">
+                        </td>
+                        <td>
+                            <a href="{{ url_for('profile.viewMyEmployees', emp_id=employee[0]) }}">
+                                <i class="fas fa-user" id="employee-table-user-icon" data-tooltip="View Details"></i>
+                            </a>
+                        </td>
+                        <td>{{ employee[1] }}</td>
+                        <td>{{ employee[2] }}</td>
+                        <td>
+                            {% if employee[3] == 'Admin' %}
+                                <span class="current-role-button admin-role-button">{{ employee[3] }}</span>
+                            {% elif employee[3] == 'Approval Manager' %}
+                                <span class="current-role-button approval-manager-role-button">{{ employee[3] }}</span>
+                            {% elif employee[3] == 'Employee' %}
+                                <span class="current-role-button employee-role-button">{{ employee[3] }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select class="custom-select" name="new_role_{{ employee[0] }}" required>
+                                    <option value="" disabled selected>Select Role</option>
+                                    {% if employee[3] != 'Admin' %}
+                                        <option value="Admin">Admin</option>
+                                    {% endif %}
+                                    {% if employee[3] != 'Approval Manager' %}
+                                        <option value="Approval Manager">Approval Manager</option>
+                                    {% endif %}
+                                    {% if employee[3] != 'Employee' %}
+                                        <option value="Employee">Employee</option>
+                                    {% endif %}
+                                </select>
+                                <div class="error-message">Please select a role.</div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <button type="button" class="custom-button" onclick="updateSelectedEmployees()">Update Selected Employees</button>
+        <button type="button" class="custom-button" onclick="resetForm()">Reset</button>
+
+    </form>
+
+    
+
+
+
+
+
+        </div>
+    
+</div>
+
+<div class="pagination">
+    {% if page > 1 %}
+        <a class="page-link" href="{{ url_for('admin.updateEmployeeRoles', page=page-1) }}">Previous</a>
+    {% endif %}
+    
+    {% for num in range(1, pages + 1) %}
+        {% if num == page %}
+            <span class="current page-link">{{ num }}</span>
+        {% else %}
+            <a class="page-link" href="{{ url_for('admin.updateEmployeeRoles', page=num) }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if page < pages %}
+        <a class="page-link" href="{{ url_for('admin.updateEmployeeRoles', page=page+1) }}">Next</a>
+    {% endif %}
+</div>
+
+<h2>Showing {{ start_idx }} to {{ end_idx }} of total {{ total }} employees</h2>
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    <script>
+        function updateSelectedEmployees() {
+            const form = document.getElementById('updateEmployeeRolesForm');
+            const checkboxes = form.querySelectorAll('.employee-checkbox');
+            const selects = form.querySelectorAll('.custom-select');
+            let hasError = false;
+    
+            // Check if any checkbox or select is selected
+            const isAnyCheckboxSelected = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            const isAnyRoleSelected = Array.from(selects).some(select => select.selectedIndex > 0);
+    
+            if (!isAnyCheckboxSelected && !isAnyRoleSelected) {
+                alert('Please at least select an employee!');
+                return;
+            }
+    
+            selects.forEach(select => {
+                const row = select.closest('tr');
+                const checkbox = row.querySelector('.employee-checkbox');
+    
+                select.classList.remove('error-select');
+                select.nextElementSibling.style.display = 'none';
+                row.classList.remove('error-row');
+    
+                if (select.selectedIndex > 0 && !checkbox.checked) {
+                    alert('Please tick the checkbox for all selected roles.');
+                    row.classList.add('error-row');
+                    hasError = true;
+                } else if (checkbox.checked && select.selectedIndex === 0) {
+                    select.classList.add('error-select');
+                    select.nextElementSibling.style.display = 'block';
+                    hasError = true;
+                }
+            });
+    
+            if (hasError) {
+                return;
+            }
+    
+            form.submit();
+        }
+    
+        function resetForm() {
+            const form = document.getElementById('updateEmployeeRolesForm');
+            const checkboxes = form.querySelectorAll('.employee-checkbox');
+            const selects = form.querySelectorAll('.custom-select');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.closest('tr').classList.remove('error-row');
+            });
+            selects.forEach(select => {
+                select.selectedIndex = 0;
+                select.classList.remove('error-select');
+                select.nextElementSibling.style.display = 'none';
+            });
+        }
+    
+        // Highlight the row when checkbox is checked
+        document.querySelectorAll('.employee-checkbox').forEach(function (checkbox) {
+            checkbox.addEventListener('change', function (e) {
+                const row = e.target.closest('tr');
+                if (e.target.checked) {
+                    row.classList.add('highlighted-row');
+                } else {
+                    row.classList.remove('highlighted-row');
+                }
+            });
+        });
+    </script>
+    
+    
+    
+    
+{% endblock %}

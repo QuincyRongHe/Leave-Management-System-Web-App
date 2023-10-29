@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+
+<head>
+
+    <link rel="stylesheet" tpye="text/css" href= "{{ url_for('static', filename='stylesheets/buttons.css') }}" >
+    <link rel="stylesheet" tpye="text/css" href= "{{ url_for('static', filename='jquery-ui/jquery-ui.css') }}" >
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/mermaid.min.css') }}" >
+    
+
+    
+    <script src="{{ url_for('static', filename='jquery-ui/jquery-ui.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts/gridjs.umd.js') }}"></script>
+
+
+
+        
+
+</head>
+
+<div class="inline-container">
+
+    <div class="cut75">
+
+        <div class = "table-container">
+            <main>
+                <div class="general-table" id="setting-header-container">
+
+                    {% block setting_content %} <h1 class="setting-main-header">Select an option on the right</h1> {% endblock %}
+
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <div class="cut25">
+
+        <div class = "table-container" id="settings-table">
+            <main>
+                <div class="general-table" id="general-options-table">
+
+                    <h2 class="setting-header">General</h2>
+
+                    <form action="{{ url_for('admin.changePWD') }}" method="get">
+                
+                    <button class="button-settings-options" id="changepwdbtn" role="button">Change Password</button>
+                    </form>
+                    {% if session.get('role') and session['role'] == 3 %} 
+                    <h2 class="setting-header">Update</h2>
+
+                    <form action="{{ url_for('admin.updateLeaveBalances') }}" method="get">
+                    
+                    <button class="button-settings-options" role="button">Update Leave Balances</button>
+
+                </form>
+                    <h2 class="setting-header">Manage</h2>
+
+
+                    <form action="{{ url_for('admin.editLeaveTypes') }}" method="get">
+                    <button class="button-settings-options" role="button">Leave Types</button>
+                </form>
+                    
+                    <form action="{{ url_for('admin.editHoliday') }}" method="get">
+                    <button class="button-settings-options" role="button" id="public-holiday">Public Holiday</button>
+                </form>
+                
+                    <form action="{{ url_for('admin.updateEmployeeRoles') }}" method="POST">
+                    <button class="button-settings-options" role="button" id="updateEmployeeRoles">Employee Roles</button>
+                
+                </form>
+                {% endif %}
+    
+
+
+                </div>
+                
+
+            </main>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+<script>
+    // $(document).ready(function() {
+
+
+
+
+    //     $('#changepwdbtn').click(function() {
+    //         $.ajax({
+    //             url: '/changepwd',
+    //             type: 'GET',
+    //             success: function(response) {
+    //                 // console.log(response);
+                    
+    //                 $('#setting-content').html( response);
+    //             }
+    //         });
+    //     });
+
+    //     $('#changepwdform').submit(function(event) {
+
+    //         event.preventDefault();
+            
+
+    //         var formData = $(this).serialize();
+            
+
+    //         $.ajax({
+    //             url: '/changepwd',  
+    //             type: 'POST',
+    //             data: formData,
+    //             success: function(response) {
+    //                 console.log("Sucess");
+
+    //                 console.log(response);
+    //                 $('#setting-content').html( response);
+    //             },
+    //             error: function(error) {
+    //                 console.log("Failed");
+
+    //                 console.log(error);
+    //             }
+    //         });
+    //     });
+
+
+
+
+
+
+
+
+
+    // });
+</script>
+
+
+
+{% endblock %}

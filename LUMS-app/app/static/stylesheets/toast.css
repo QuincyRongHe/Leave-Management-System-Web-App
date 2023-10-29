@@ -1,0 +1,23 @@
+.toast-icon-success::before {
+    font-size: 3rem;
+    content: "\F26A";
+    font-family: 'bootstrap-icons';
+}
+
+.toast-icon-danger::before {
+    font-size: 3rem;
+    content: "\F336";
+    font-family: 'bootstrap-icons';
+}
+
+.toast-icon-info::before {
+    font-size: 3rem;
+    content: "\F332";
+    font-family: 'bootstrap-icons';
+}
+
+.toast-icon-warning {
+    font-size: 3rem;
+    content: "\F33A";
+    font-family: 'bootstrap-icons';
+}

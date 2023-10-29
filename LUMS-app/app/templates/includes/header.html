@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+
+</head>
+<body>
+  <div class="top-background">
+    <div class="top-image">
+      <h1 class="dashboard-header">Kia ora {{session['userName']}}</h1>
+      {% if session['role'] == 3 %}
+        <p class="header-text">Admin</p>
+      {% elif session['role'] == 2 %}
+        <p class="header-text">Approval Manager</p>
+      {% else %}
+        <p class="header-text">Employee</p>
+      {% endif %}
+
+      <div class="content clock-container">
+        <p class="clock-text">The current time is:</p>
+        <span id="clock"></span>
+      </div>
+
+      <div class="horizontal_line"></div>
+      <div class="line"></div>
+      </br>
+    </div>
+  </div>
+
+  <span id="notification-icon" class="notification-icon">
+    <i class="fas fa-bell"></i>
+    <span id="notification-count" class="notification-count"></span>
+  </span>
+
+  <div id="notification-dialog" class="notification-dialog">
+    <div class="control-buttons">
+      <button id="read-all-button">Clear All</button>
+      <button id="close-button">Close</button>
+    </div>
+
+    <ul id="notification-list" class="notification-list"></ul>
+  </div>
+
+  <div class="profile-icon">
+    <i class="fas fa-user"></i>
+    <div class="dropdown-menu">
+      <ul>
+        <li>
+          <a href="{{ url_for('profile.myprofile') }}">
+            <i class="fas fa-address-card"></i>
+            <span class="menu-item">My Profile</span>
+          </a>
+        </li>        
+        <li>
+          <a href="{{ url_for('admin.showsSettings') }}">
+            <i class="fas fa-cog"></i>
+            <span class="menu-item">Settings</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('auth.logout') }}">
+              <i class ="fas fa-solid fa-right-from-bracket"></i>
+              <span class = "side-bar-item" class = "logout-button">Log Out</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+
+  <script>
+    $(document).ready(function(){
+      fetchNotifications();
+    
+      setInterval(fetchNotifications, 5000);
+
+      
+      
+      $('#notification-icon').click(function() {
+        $('#notification-dialog').show();
+        updateNotificationDisplay();
+      });
+
+      $('#close-button').click(function() {
+        $('#notification-dialog').hide();
+      });
+
+      $('#read-all-button').click(function() {
+        markAllNotificationsAsRead();
+      });
+
+      $(document).mouseup(function(e) {
+        var container = $("#notification-dialog");
+
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+          container.hide();
+        }
+      });
+    });
+
+    var notifications = []; // This array will store the notifications
+    var readNotifications = [];
+
+    function fetchNotifications() {
+  $.ajax({
+    url: '/api/notifications',
+    method: 'GET',
+    success: function(response) {
+      console.log('Fetched notifications:', response);
+      notifications = response;
+      updateNotificationDisplay();
+    },
+    error: function(error) {
+      console.log('Error in AJAX request', error);
+    }
+  });
+}
+
+
+function updateNotificationDisplay() {
+  $('#notification-list').empty();
+
+  notifications.forEach(function(notification) {
+    var listItem = createNotification(notification);
+    $('#notification-list').append(listItem);
+  });
+
+  var unreadCount = notifications.filter(function(notification) {
+    return !notification.read_status;
+  }).length;
+
+  $('#notification-count').text(unreadCount);
+
+  if (notifications.length === 0) {
+    $('#notification-dialog').hide();
+  }
+}
+
+
+    function displayNotifications() {
+      $('#notification-list').empty();
+
+      notifications.forEach(function(notification) {
+        var listItem = createNotification(notification);
+        $('#notification-list').append(listItem);
+      });
+
+      if (notifications.length > 0) {
+        $('#notification-dialog').show();
+      }
+    }
+
+    function createNotification(notification) {
+  var listItem = $('<li>');
+
+  // Check if the notification is unread
+  if (!notification.read_status) {
+    listItem.addClass('unread');
+  }
+
+  // Create the notification message as a clickable link to the request details
+  var message;
+  if (notification[4].includes('New request received from')) {
+    var userName = notification[4].replace('New request received from', '').trim();
+    var requestUrl = '/newrequests/' + notification[3];
+    message = $('<a>').attr('href', requestUrl).addClass('notification-message')
+      .html('<i class="fas fa-file-pen" style="color: #e5c111;"></i> New request received from ' + userName);
+  } else if (notification[4].includes('New response received from')) {
+    var userName = notification[4].replace('New response received from', '').trim();
+    var responseUrl = '/leaverequests/' + notification[2] + '/' + notification[3];
+    message = $('<a>').attr('href', responseUrl).addClass('notification-message')
+      .html('<i class="fas fa-envelope" style="color: #4564ff;"></i> New response received from ' + userName);
+  } else {
+    message = $('<span>').addClass('notification-message').text(notification[4]);
+  }
+
+  // Add click event to mark notification as read
+  message.on('click', function(e) {
+    e.stopPropagation(); // Prevent triggering the click event on the list item
+    markNotificationAsRead(notification[0]);
+  })
+
+  message.on('click', function(e) {
+    e.stopPropagation(); // Prevent triggering the click event on the list item
+    if (notification.status_id === 5) { // Assuming status_id 5 means the request is deleted
+      e.preventDefault(); // Prevents the click action
+      alert("This request has been deleted and is not accessible."); // Optional: inform the user
+    } else {
+      markNotificationAsRead(notification[0]);
+    }
+  });
+
+  listItem.append(message);
+
+  // Display the time the notification was received
+  var receivedTime = notification[5];
+  var timeAgo = calculateTimeDifference(receivedTime) + ' ago';
+  var timeReceived = $('<p>').text(timeAgo);
+  listItem.append(timeReceived);
+
+  // Create the cross "x" button to delete the notification
+  var deleteButton = $('<button>').text('x').addClass('delete-button');
+  deleteButton.on('click', function(e) {
+    e.stopPropagation(); // Prevent triggering the click event on the list item
+    markNotificationAsRead(notification[0]);
+  });
+  listItem.append(deleteButton);
+
+  return listItem;
+}
+
+
+
+function calculateTimeDifference(time) {
+  var now = moment();
+
+  var receivedTime = moment(time, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
+
+  if (!receivedTime.isValid()) {
+    console.error('Invalid date received from server:', time);
+    return 'Invalid date';
+  }
+
+  var differenceInSeconds = now.diff(receivedTime, 'seconds');
+
+  if (differenceInSeconds < 60) {
+    return 'just now';
+  } else {
+    var differenceInMinutes = now.diff(receivedTime, 'minutes');
+    var differenceInHours = now.diff(receivedTime, 'hours');
+    var differenceInDays = now.diff(receivedTime, 'days');
+
+    if (differenceInMinutes < 1) {
+      return 'just now';
+    } else if (differenceInMinutes < 60) {
+      return differenceInMinutes + ' mins';
+    } else if (differenceInHours < 24) {
+      return differenceInHours + ' hours';
+    } else {
+      return differenceInDays + ' days';
+    }
+  }
+}
+
+
+
+
+
+
+function markAllNotificationsAsRead() {
+  // Update the read_status for all notifications in the array
+  notifications.forEach(function(notification) {
+    notification.read_status = 'read';
+  });
+
+  // Update the read_status for all notifications in the database
+  $.ajax({
+    url: '/api/mark_all_notifications_read',
+    method: 'PUT',
+    success: function(response) {
+      fetchNotifications();
+    },
+    error: function(error) {
+      console.log('Error in AJAX request', error);
+    }
+  });
+}
+
+
+function markNotificationAsRead(notificationId) {
+  // Mark the notification as read in the array
+  for (var i = 0; i < notifications.length; i++) {
+        if (notifications[i].notification_id == notificationId) {
+            notifications[i].read_status = true;
+            // Remove the unread class from the list item
+            $('#notification-list').children().eq(i).removeClass('unread');
+            break;
+        }
+    }
+  $.ajax({
+    url: '/api/mark_notification_read/' + notificationId,
+    method: 'PUT',
+    success: function(response) {
+      fetchNotifications(); // Refresh the notifications after marking as read
+    },
+    error: function(error) {
+      console.log('Error in AJAX request', error);
+    }
+  });
+}
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+{% extends "base.html" %} {% block content %}
+
+<head>
+  <!-- bootstrapcss -->
+  <!-- <link rel="stylesheet" tpye="text/css" href="{{ url_for('static', filename='stylesheets/bootstrap.css') }}"> -->
+  <link
+    rel="stylesheet"
+    tpye="text/css"
+    href="{{ url_for('static', filename='stylesheets/userprofilecss.css') }}"
+  />
+</head>
+
+{% set empID = basicDetail[0] %}
+{% set userName = basicDetail[1] %}
+{% set roleName = basicDetail[2] %}
+{% set title = basicDetail[3] %}
+{% set fname = basicDetail[4] %}
+{% set lname = basicDetail[5] %}
+{% set gender = basicDetail[6] %}
+{% set joinedDate = basicDetail[7] %}
+{% set posTitle = posAndDate[0] %}
+{% set posDate = posAndDate[1] %}
+{% set deptCode = deptName[0] %}
+{% set deptName = deptName[1] %}
+{% set reportTo = reportApprovalManager[0] %}
+{% set approvedBy = reportApprovalManager[1] %}
+
+{% if session['userID'] != empID %}
+<h1 class="page-subheading"><a href="javascript:history.back()">
+  <i class="fa-solid fa-arrow-left fa-xl " style="vertical-align: bottom;color: #070ff2;">  </i>
+
+  <span class = "side-bar-item"> View All Employees </span>
+</a></h1> <br />
+{% endif %}
+
+
+<div class="table-container">
+  <main>
+    <div class="general-table">
+      <div class="padding d-flex justify-content-center">
+        <div class="row container">
+          <div class="col-md-12">
+            <div class="card user-card-full">
+              <div class="row m-l-0 m-r-0">
+                <div class="col-sm-4 bg-c-lite-green user-profile">
+                  <div class="card-block text-center text-white">
+                    <div class="m-b-25">
+                      <img
+                        src="{{ url_for('static', filename='images/employee_image/'+empID|string+'.jpeg') }}"
+                        class="img-radius"
+                        alt="User-Profile-Image"
+                      />
+                    </div>
+                    <h2 class="f-w-600">{{fname}} {{lname}}</h2>
+                    <h3>{{roleName}}</h3>
+                  </div>
+                </div>
+                <div class="col-sm-8">
+                  <div class="card-block">
+                    <h5
+                      class="user-profile-section m-b-20 p-b-5 b-b-default f-w-600"
+                    >
+                      Basic Details
+                    </h5>
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">Employee ID</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{empID}}
+                        </h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">Title</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{title}}
+                        </h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">First Name</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{fname}}
+                        </h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">Last Name</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{lname}}
+                        </h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">Gender</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{gender}}
+                        </h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">UserName (email)</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{userName}}
+                        </h6>
+                      </div>
+                    </div>
+                    <h5
+                      class="user-profile-section m-b-20 m-t-40 p-b-5 b-b-default f-w-600"
+                    >
+                      Current Position
+                    </h5>
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">Position</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{posTitle}}
+                        </h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="m-b-5 f-w-600">Position Start Date</p>
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{posDate | nz_date}}
+                        </h6>
+                      </div>
+                    </div>
+                    <h5
+                      class="user-profile-section m-b-20 m-t-40 p-b-5 b-b-default f-w-600"
+                    >
+                      Department
+                    </h5>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{deptName}} ({{deptCode}})
+                        </h6>
+                      </div>
+                    </div>
+                    <h5 
+                      class="user-profile-section m-b-20 m-t-40 p-b-5 b-b-default f-w-600"
+                    >
+                      Reports to
+                    </h5>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{reportTo}}
+                        </h6>
+                      </div>
+                    </div>
+                    <h5
+                      class="user-profile-section m-b-20 m-t-40 p-b-5 b-b-default f-w-600"
+                    >
+                      Leave Approved by
+                    </h5>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <h6 class="user-profile-filed text-muted f-w-400">
+                          {{approvedBy}}
+                        </h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

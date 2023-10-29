@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="container">
+  <main>
+    <!-- Leave balance header -->
+    <h1>My Dashboard</h1>
+
+    <div class="insights">
+      <div class="balance-sick">
+        <!-- Sick leave card -->
+        <i class="fa-solid fa-bacterium"></i>
+        <div class="card-middle">
+          <div class="card-left">
+            <h1>Sick Leave Balance</h1>
+          </div>
+          <div class="progress">
+            <svg>
+              <circle cx="38" cy="38" r="36"></circle>
+            </svg>
+            <div class="sick-total-number">{{ sickLeaveHours }} hours</div>
+          </div>
+        </div>
+        <small class="text-muted">Balance as of last pay cycle</small>
+      </div>
+
+      <div class="balance-annual">
+        <!-- Annual leave card -->
+        <i class="fa-solid fa-champagne-glasses"></i>
+        <div class="card-middle">
+          <div class="card-left">
+            <h1>Annual Leave Balance</h1>
+          </div>
+          <div class="progress">
+            <svg>
+              <circle cx="38" cy="38" r="36"></circle>
+            </svg>
+            <div class="annual-total-number">{{ annualLeaveHours }} hours</div>
+          </div>
+        </div>
+        <small class="text-muted">Balance as of last pay cycle</small>
+      </div>
+
+      <div class="balance-annual">
+        <!-- Last Pay Day -->
+        <i class="fa-solid fa-sack-dollar"></i>
+        <div class="card-middle">
+          <div class="card-left">
+            <h1 class="h1">Last Pay Day</h1>
+          </div>
+          <div class="progress">
+            <svg></svg>
+            <div class="leave-total-number">
+              <div class="annual-total-number">{{ weekday }} {{ last_pay_date | nz_date }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="leave-request-table">
+      <!-- Leave breakdown table -->
+      <h1>My Recent Requests</h1>
+      <br>
+
+      {% if not myLeaveRequests %}
+      <div class="no-requests" id="no-request-table">
+        <p>No leave requests found.</p>
+      </div>
+      {% else %}
+
+      <table>
+        <thead>
+          <th>Request ID</th>
+          <th>Submission Date</th>
+          <th>Leave Type</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+        </thead>
+
+        <tbody>
+          {% for request in myLeaveRequests[:5] %}
+          {% set requestID = request[0] %}
+          {% set emp_id = request[1] %}
+
+          <tr>
+            <td>
+              <a href="{{ url_for('request.viewMyRequests', emp_id=emp_id, request_id=request[0]) }}">
+                <i class="fa-solid fa-link" id="leave-request-table-icons"></i>{{ request[0] }}
+              </a>
+            </td>
+            <td>{{ request[6] | format_date_time }}</td>
+            <td>{{ request[7] }}</td>
+            <td>{{ request[3] | nz_date }}</td>
+            <td>{{ request[4] | nz_date }}</td>
+            <td class="current-status-button {% if request[8] == 'Approved' %}approved-status{% elif request[8] in ['Cancelled', 'Rejected', 'Deleted'] %}cancelled-status{% elif request[8] in ['Unsubmitted', 'Submitted'] %}unsubmitted-status{% endif %}">
+              {{ request[8] }}
+            </td>            
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ url_for('request.viewMyRequests') }}" class="show-all">Show all</a>
+      {% endif %}
+    </div>
+
+    <br>
+    <br>
+
+  </main>
+</div>
+
+{% endblock %}

@@ -1,0 +1,11 @@
+Flask==2.2.3
+Flask_Moment==1.0.5
+flask_paginate==2022.1.8
+Flask_WTF==1.1.1
+mysql_connector==2.2.9
+numpy==1.24.3
+PyJWT==2.7.0
+selenium==4.10.0
+WTForms==2.3.3
+email-validator==1.1.2
+pytz==2023.3
